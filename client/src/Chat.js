@@ -43,20 +43,19 @@ const Chat = () => {
       setModels(available);
       
       if (available.length > 0 && !selectedModel) {
-        setSelectedModel(available[0].name);
+        setSelectedModel(available[0].id);
       }
       
       if (available.length === 0) {
-        setError('No models found. Install one with: ollama pull <model-name>');
+        setError('No models found. Install Ollama models or configure OpenRouter API key.');
       }
     } catch (error) {
       console.error('Failed to load models:', error);
-      setError('Could not connect to Ollama. Make sure it\'s running.');
+      setError('Could not connect to any model providers. Check Ollama or OpenRouter configuration.');
     } finally {
       setModelsLoading(false);
     }
   };
-
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
     
@@ -64,6 +63,10 @@ const Chat = () => {
       setError('Please select a model first.');
       return;
     }
+
+    // Find the selected model object to get provider info
+    const modelObj = models.find(m => m.id === selectedModel);
+    const provider = modelObj?.provider || 'ollama';
 
     const userMessage = {
       id: Date.now(),
@@ -80,7 +83,8 @@ const Chat = () => {
     try {
       const response = await axios.post(`${API_BASE}/chat`, {
         message: input.trim(),
-        model: selectedModel
+        model: selectedModel,
+        provider: provider
       });
 
       if (response.data.success) {
@@ -135,14 +139,14 @@ const Chat = () => {
             {modelsLoading ? (
               <option value="">Loading models...</option>
             ) : models.length === 0 ? (
-              <option value="">No models available</option>
-            ) : (
+              <option value="">No models available</option>            ) : (
               <>
                 {!selectedModel && <option value="">Select a model...</option>}
                 {models.map(model => (
-                  <option key={model.name} value={model.name}>
-                    {model.name}
-                    {model.size ? ` (${model.size})` : ''}
+                  <option key={model.id} value={model.id}>
+                    {model.name} ({model.provider === 'ollama' ? 'Local' : 'Cloud'})
+                    {model.size ? ` - ${model.size}` : ''}
+                    {model.pricing ? ` - ${model.pricing}` : ''}
                   </option>
                 ))}
               </>
@@ -152,15 +156,15 @@ const Chat = () => {
             <Trash2 size={18} />
           </button>
         </div>
-      </header>
-
-      {error && (
+      </header>      {error && (
         <div className="error-banner">
           <AlertCircle size={16} />
           {error}
           {error.includes('No models found') && (
             <div className="error-suggestion">
-              <p>Install a model using: <code>ollama pull llama2</code> or <code>ollama pull mistral</code></p>
+              <p>Options:</p>
+              <p>• Install local models: <code>ollama pull llama2</code></p>
+              <p>• Or configure OpenRouter API key in server/.env</p>
             </div>
           )}
         </div>
@@ -171,7 +175,7 @@ const Chat = () => {
           <div className="welcome-message">
             <Bot size={48} className="welcome-icon" />
             <h2>Welcome to Promptini</h2>
-            <p>Your universal chat interface for any LLM model available through Ollama</p>
+            <p>Universal chat interface for local (Ollama) and cloud (OpenRouter) LLM models</p>
           </div>
         ) : (
           messages.map((message) => (
