@@ -2,6 +2,8 @@
 
 Universal LLM chat interface powered by Ollama and OpenRouter. Chat with local models or cloud APIs.
 
+![Promptini Interface](image.png)
+
 ## Features
 
 - **Dual Provider Support**: Local models via Ollama + Cloud models via OpenRouter
