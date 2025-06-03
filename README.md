@@ -28,7 +28,13 @@ Universal LLM chat interface powered by Ollama. Clean, fast, and works with any 
    ```
 
 3. Start the application:
-   ## Development
+   ```bash
+   npm run dev
+   ```
+
+4. Open http://localhost:3000 and start chatting!
+
+## Development
 
 ```bash
 npm run dev      # Start both frontend and backend
@@ -51,7 +57,7 @@ npm run server   # Backend only (port 3001)
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
